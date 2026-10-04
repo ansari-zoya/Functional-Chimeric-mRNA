@@ -101,3 +101,23 @@ The project will follow a computational workflow for identifying and characteriz
 - Comparative analysis
 - Visualization of results
 - Final project documentation
+
+## Critical parameter note (from TYPHON GitHub issue #1, Oct 2026)
+
+- JAFFAL MIN_LOW_SPANNING_READS set to 1 (not default 2)
+  - TYPHON applies this automatically during setup
+  - Many chimeras including Gsdmd:Tmem106a have only 1 supporting read
+  - Running JAFFAL standalone without this change causes ~30% missed chimeras
+- JAFFAL: use version 2.3 (self-reports as 2.4_dev at runtime, same thing)
+- Reference: GENCODE M28 confirmed by authors, do not upgrade
+- Source: https://github.com/erenada/TYPHON/issues/1
+## TYPHON version
+Commit: 2179e9daa445f055c5b228ed6f7b33c2373ed765
+Cloned: Sat Oct  3 12:00:14 UTC 2026
+Source: https://github.com/erenada/TYPHON
+
+## Tool versions (typhon_env)
+Minimap2: 2.31-r1302
+SAMtools: 1.24
+Environment installed: Sun Oct  4 07:03:07 UTC 2026
+LongGF: 0.1.2 (called as 'LongGF' with capital L)

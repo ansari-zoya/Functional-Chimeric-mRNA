@@ -1,3 +1,26 @@
 .venv/
 orfipy_version_out/
 
+# Large data files
+data/raw/
+data/fastq/
+reference/
+results/alignment/
+results/qc/
+
+# SRA and sequencing files
+*.sra
+*.fastq
+*.fastq.gz
+*.bam
+*.sam
+
+# TYPHON tools and environment
+tools/
+miniforge3/
+
+# Temporary files
+*.tmp
+*.log
+__pycache__/
+*.pyc
