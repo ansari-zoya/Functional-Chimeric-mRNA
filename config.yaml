@@ -1,125 +1,69 @@
-# TYPHON Pipeline Configuration Template
-# Authors: Harry Kane, PhD; Eren Ada, PhD
-# 
-# This configuration file controls all aspects of the TYPHON chimeric RNA detection pipeline.
-# TYPHON integrates three complementary tools: LongGF, Genion, and JaffaL for comprehensive fusion detection.
-
-# =============================================================================
-# PROJECT SETTINGS
-# =============================================================================
 project:
-  name: Functional_Chimeric_mRNA_Reproduction                # Analysis name for output labeling
-  output_dir: /home/asus/bioinformatics/Functional_Chimeric_mRNA/results/typhon_output  # Main output directory for all results
-  threads: 2                                # Default threads for parallel processing
-  author: ansari-zoya                    # Author names for documentation
-
-# =============================================================================
-# INPUT DATA PATHS
-# =============================================================================
+  name: Functional_Chimeric_mRNA_Reproduction
+  output_dir: /home/asus/bioinformatics/Functional_Chimeric_mRNA/results/typhon_output
+  threads: 2
+  author: ansari-zoya
 input:
-  fastq_dir: /home/asus/bioinformatics/Functional_Chimeric_mRNA/data/fastq             # Directory containing FASTQ files (.fastq, .fq, .gz supported)
-
-# =============================================================================
-# REFERENCE FILES
-# =============================================================================
+  fastq_dir: /home/asus/bioinformatics/Functional_Chimeric_mRNA/data/fastq
 references:
-  genome: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/GRCm39.primary_assembly.genome.fa    # Reference genome FASTA
-  gtf: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/gencode.vM28.annotation.gtf.gz              # Gene annotation GTF file
-  transcriptome: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/gencode.vM28.transcripts.fa.gz    # Transcriptome FASTA for Genion
-
-# =============================================================================
-# PIPELINE MODULES
-# =============================================================================
+  genome: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/GRCm39.primary_assembly.genome.fa
+  gtf: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/gencode.vM28.annotation.gtf.gz
+  transcriptome: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/gencode.vM28.transcripts.fa.gz
 modules:
-  # ---------------------------------------------------------------------------
-  # LongGF MODULE: Direct RNA-seq fusion detection
-  # ---------------------------------------------------------------------------
   longgf:
-    enabled: true                              # Enable/disable LongGF analysis
-    keep_intermediate: false                    # Keep intermediate BAM/SAM files
-    
-    # Core LongGF parameters (command: LongGF input.bam gtf.gtf 100 50 100 2 0 1 0)
-    min_overlap_len: 100                        # Minimum overlap length for fusion detection
-    bin_size: 50                                # Bin size for genomic interval processing
-    min_map_len: 100                           # Minimum mapping length for valid alignments
-    pseudogene: 2                              # Pseudogene filter level (0=off, 1=strict, 2=moderate)
-    secondary_alignment: 0                      # Include secondary alignments (0=no, 1=yes)
-    min_sup_read: 1                            # Minimum supporting reads per fusion
-    output_flag: 0                             # Output format flag (0=standard, 1=verbose)
-
-  # ---------------------------------------------------------------------------
-  # GENION MODULE: Graph-based fusion detection with custom TYPHON enhancements
-  # ---------------------------------------------------------------------------
+    enabled: true
+    keep_intermediate: false
+    min_overlap_len: 100
+    bin_size: 50
+    min_map_len: 100
+    pseudogene: 2
+    secondary_alignment: 0
+    min_sup_read: 1
+    output_flag: 0
   genion:
-    enabled: true                             # Enable/disable Genion analysis
-    min_support: 1                             # Minimum supporting reads (--min-support parameter)
-    keep_debug: true                           # Keep .fail files with detailed debug information
-    output_bin_dir: ./bin                      # Directory containing custom Genion binary
-    debug_compilation: true                     # Compile Genion with debug flags for detailed output
-    threads: 2                                 # Compilation threads (Genion itself is single-threaded)
-    
-    # Advanced Genion parameters (currently hardcoded, future expansion)
-    # genomic_superdups_file: ""               # Path to genomic segmental duplications file (optional)
-    # custom_gtf_modifications: true           # Apply TYPHON-specific GTF processing
-
-  # ---------------------------------------------------------------------------
-  # JAFFAL MODULE: JAFFA-Long pipeline for Nanopore/PacBio data
-  # ---------------------------------------------------------------------------
+    enabled: true
+    min_support: 1
+    keep_debug: true
+    output_bin_dir: ./bin
+    debug_compilation: true
+    threads: 2
   jaffal:
-    enabled: true                             # Enable/disable JaffaL analysis
-    jaffal_dir:  /home/asus/bioinformatics/Functional_Chimeric_mRNA/tools/TYPHON/jaffal/JAFFA-version-2.3     # JaffaL installation directory (absolute path)
-    genome_build: mm39                         # Genome build identifier (mm39, hg38, etc.)
-    annotation: gencode_M28                    # Annotation build identifier
-    
-    # Memory management
-    max_memory: "4G"                         # Maximum memory for JaffaL processes (conservative)
-    bpipe_memory: "4G"                       # Memory allocation for bpipe Java heap
-    process_samples_sequentially: true        # Process one sample at a time to manage memory usage
-    
-    # Reference files for JaffaL (processed by setup_jaffal.py)
+    enabled: true
+    jaffal_dir: /home/asus/bioinformatics/Functional_Chimeric_mRNA/tools/TYPHON/jaffal/JAFFA-version-2.3
+    genome_build: mm39
+    annotation: gencode_M28
+    max_memory: 4G
+    bpipe_memory: 4G
+    process_samples_sequentially: true
     reference_files:
-      genome_fasta_gz:  /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/GRCm39.primary_assembly.genome.fa.gz           # Genome FASTA (can be .gz)
-      transcriptome_fasta: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/gencode.vM28.transcripts.fa.gz    # Transcriptome FASTA
-      annotation_bed: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/jaffal/mm39_gencode_M28.bed           # Gene annotations in BED format
-      annotation_tab:  /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/jaffal/mm39_gencode_M28.tab          # Tab-delimited gene info
-    
-    # JaffaL execution parameters
-    threads: 2                               # Number of threads for bpipe/JaffaL execution
-    keep_intermediate: false                   # Keep intermediate bpipe files
-    min_low_spanning_reads: 1                  # Minimum spanning reads for low-confidence fusions
-    
-    # Advanced JaffaL parameters (applied during setup)
-    assembly_parameters:                     # Parameters for transcript assembly
-      kmer_lengths: "19,36,4"                # K-mer lengths for assembly (Ks parameter)
-      oases_merge_length: 27                 # Oases merge k-mer length (Kmerge parameter)
-      transcript_min_length: 100             # Minimum contig length (transLength parameter)
-    trimming_parameters:                     # Parameters for read trimming
-      phred_scores: 33                       # PHRED quality score type
-      min_read_length: 35                    # Minimum read length after trimming
-      min_quality_score: 0                   # Quality trimming threshold (0=no trimming)
-    alignment_parameters:                    # Parameters for read alignment
-      map_params: "-k1 --no-mixed --no-discordant --mm"  # Bowtie2 mapping parameters
-      blast_options: "-perc_identity 96"     # BLAST identity threshold
-      blat_options: "-minIdentity=96 -minScore=30"  # BLAT alignment options
-
-# =============================================================================
-# GLOBAL OPTIONS
-# =============================================================================
+      genome_fasta_gz: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/GRCm39.primary_assembly.genome.fa.gz
+      transcriptome_fasta: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/gencode.vM28.transcripts.fa.gz
+      annotation_bed: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/jaffal/mm39_gencode_M28.bed
+      annotation_tab: /home/asus/bioinformatics/Functional_Chimeric_mRNA/reference/jaffal/mm39_gencode_M28.tab
+    threads: 2
+    keep_intermediate: false
+    min_low_spanning_reads: 1
+    assembly_parameters:
+      kmer_lengths: 19,36,4
+      oases_merge_length: 27
+      transcript_min_length: 100
+    trimming_parameters:
+      phred_scores: 33
+      min_read_length: 35
+      min_quality_score: 0
+    alignment_parameters:
+      map_params: -k1 --no-mixed --no-discordant --mm
+      blast_options: -perc_identity 96
+      blat_options: -minIdentity=96 -minScore=30
 options:
-  cleanup_intermediate: true                   # Remove intermediate files after successful completion
-  debug: true                                 # Enable debug logging throughout pipeline
-  keep_sam_files: true                        # Preserve SAM files for downstream analysis
-  
-  # Resource management
-  max_memory_gb: 8                           # Maximum memory usage per process (GB)
-  temp_dir: /tmp                              # Temporary directory for large file operations
-  
-  # Integration and overlap analysis
-  enable_integration: true                    # Run integration analysis after all modules complete
-  
-  # Exon repair protocol settings
+  cleanup_intermediate: true
+  debug: true
+  keep_sam_files: true
+  max_memory_gb: 8
+  temp_dir: /tmp
+  enable_integration: true
   exon_repair:
-    enabled: true                             # Enable molecular-level sequence reconstruction
-    bam_file: null                           # BAM file path (auto-detected from output_dir if null)
-    keep_intermediate: true                  # Keep intermediate BLAST and BED files
-    blast_threads: 2                        # Threads for BLAST operations
+    enabled: true
+    bam_file: null
+    keep_intermediate: true
+    blast_threads: 2
